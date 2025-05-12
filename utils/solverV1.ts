@@ -24,7 +24,9 @@ export function solveSudoku(board: number[][]) : boolean {
                         if(isValid(row, col, num)) {
                             board[row][col] = num;
 
-                            if(solve()) return true;
+                            if(solve()) {
+                                return true;
+                            }
 
                             board[row][col] = 0;
                         }
