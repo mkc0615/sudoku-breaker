@@ -1,5 +1,6 @@
 import { View, TextInput, Text, Pressable, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import { useState } from 'react';
+import { solveSudoku } from '../utils/solverV1';
 
 export default function BoardScreen() {
   const [board, setBoard] = useState<string[][]>(
@@ -13,35 +14,22 @@ export default function BoardScreen() {
     setBoard(newBoard);
   };
 
-  const handleSolve = async () => {
-    const boardToSend = board.map(row => 
+  const handleSolve = () => {
+    const targetBoard = board.map(row => 
         row.map(cell => cell === '' ? 0 : parseInt(cell))
     );
-    console.log('Sending board:', boardToSend);
 
-    try {
-      const response = await fetch('http://192.168.45.145:8080/board/solve', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(boardToSend),
-      });
+    const copiedBoard = targetBoard.map( row => [...row]);
 
-      if(!response.ok) {
-        throw new Error(`Server Error ::: ${response.status}`);
-      }
+    const success = solveSudoku(copiedBoard);
 
-      const solvedBoard: number[][] = await response.json();
-
-      const solvedBoardStrings = solvedBoard.map( row => 
-        row.map(num => (num === 0 ? '' : num.toString()))
-      );
-
-      setBoard(solvedBoardStrings);
-    
-    } catch(error) {
-      console.error(error);
+    if(success) {
+        const solvedBoardStr = copiedBoard.map( row => 
+            row.map(num => (num === 0? '' : num.toString()))
+        );
+        setBoard(solvedBoardStr);
+    } else {
+        alert("No Solution Found !!!");
     }
   };
 
